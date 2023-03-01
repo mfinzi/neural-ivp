@@ -1,0 +1,16 @@
+fire
+scikit-learn
+chex
+pyyaml
+jupyterlab
+notebook
+optax
+jax
+ipywidgets
+dm-haiku
+olive-oil-ml
+objax
+plum-py
+plum-dispatch
+seaborn
+matplotlib
