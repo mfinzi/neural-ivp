@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 from jax import numpy as jnp
 from jax.flatten_util import ravel_pytree
-from utils.general import load_object
+from .general import load_object
 
 
 def merge_thetas_snaps(path):
