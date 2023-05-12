@@ -10,7 +10,8 @@ setup(
     license='MIT',
     python_requires='>=3.6',
     install_requires=[
-        'h5py', 'tables', 'dm-haiku', 'optax', 'linops', 'pyyaml', 'fire'
+        'h5py', 'tables', 'dm-haiku', 'optax', 'pyyaml', 'fire',
+        'linops @ git+https://github.com/mfinzi/linops'
     ],  #jax, 
     packages=['neural_ivp'],
     long_description=open('README.md').read(),

@@ -5,9 +5,9 @@ import fire
 from sys import argv
 from jax import numpy as jnp
 from functools import partial
-from neural_pde.ivps import AdvectionSolver
-from neural_pde.nn import multi_output_nn
-from neural_pde.ivps import u0
+from neural_ivp.ivps import AdvectionSolver
+from neural_ivp.nn import multi_output_nn
+from neural_ivp.ivps import u0
 from utils.general import add_timestamp_with_random
 from utils.general import save_object
 from utils.general import generate_log_dir

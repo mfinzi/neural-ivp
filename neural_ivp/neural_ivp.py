@@ -15,7 +15,8 @@ from jax import jacfwd
 
 from neural_ivp.mvms import compute_mvm_chunked
 from neural_ivp.mvms import compute_chunked_loop
-from linops.linalg import solve_symmetric
+#from linops.linalg import inverse
+import linops as lo
 from linops.algorithms.preconditioners import NystromPrecond
 from linops import LinearOperator, I_like  #,Identity
 
@@ -288,8 +289,9 @@ class IVPSolver:
         precond = NystromPrecond(M, rank, mu=mu)
         F = M.estimate_F().astype(jnp.float64)
         A = Casted(M + precond.adjusted_mu * I_like(M), jnp.float64)
-        v, info = solve_symmetric(A, F, x0=v0, tol=cgtol, max_iters=maxcgiter, P=precond, info=True,
+        Ainv, info = lo.inverse(A,x0=v0, tol=cgtol, max_iters=maxcgiter, P=precond, info=True,
                                   pbar=False)
+        v = Ainv @ F
         out = jax.flatten_util.ravel_pytree(v)[0]
         return out, info['residuals']
 
