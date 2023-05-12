@@ -16,9 +16,11 @@ from jax import jacfwd
 from neural_ivp.mvms import compute_mvm_chunked
 from neural_ivp.mvms import compute_chunked_loop
 #from linops.linalg import inverse
-import linops as lo
+#import linops as lo
+from linops.operator_base import get_library_fns
+from linops.linalg import solve_symmetric
 from linops.algorithms.preconditioners import NystromPrecond
-from linops import LinearOperator, I_like  #,Identity
+from linops import LinearOperator, I_like#, Symmetric  #,Identity
 
 from neural_ivp.head_tuner import ls_solve, tune_head, optimize_loss
 from neural_ivp.ode_solver import solve_ivp_rk
@@ -113,8 +115,11 @@ class M_estimate(LinearOperator):
         d = len(flat_params)
         self.shape = (d, d)
         self.params_dtype = flat_params.dtype
-        print(f"params dtype {self.params_dtype}")
+        #print(f"params dtype {self.params_dtype}")
         super().__init__(self.params_dtype, self.shape)
+        import linops.jax_fns as fns
+        self.ops = fns
+        print(self.ops)
         self.evals = 0
         self.batch_size = bs
         self.is_adaptive = is_adaptive
@@ -259,7 +264,7 @@ class IVPSolver:
             pbar.update(max(int(100 * (t - T[0]) / T[-1]) - pbar.n, 0))
             v0, res = self.v_fn(t=t, theta=z, v0=self.v0, cgtol=cgtol, maxcgiter=maxcgiter,
                                 grid_size=grid_size, batch_size=batch_size, mu=mu, rank=rank,
-                                is_adaptive=is_adaptive, M_estimate=M_estimate, key=key,
+                                is_adaptive=is_adaptive, key=key,
                                 chunk=run_chunks)
             self.log_info(z, v0, t, res)
             self.v0 = jnp.zeros_like(v0)
@@ -289,9 +294,9 @@ class IVPSolver:
         precond = NystromPrecond(M, rank, mu=mu)
         F = M.estimate_F().astype(jnp.float64)
         A = Casted(M + precond.adjusted_mu * I_like(M), jnp.float64)
-        Ainv, info = lo.inverse(A,x0=v0, tol=cgtol, max_iters=maxcgiter, P=precond, info=True,
-                                  pbar=False)
-        v = Ainv @ F
+        v,info = solve_symmetric(A,F,x0=v0, tol=cgtol, max_iters=maxcgiter, P=precond, info=True,pbar=False)
+        #Ainv = lo.linalg.inverse(A,x0=v0, tol=cgtol, max_iters=maxcgiter, P=precond, info=True, pbar=False)
+        #v = Ainv @ F
         out = jax.flatten_util.ravel_pytree(v)[0]
         return out, info['residuals']
 
