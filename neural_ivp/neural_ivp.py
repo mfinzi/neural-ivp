@@ -99,7 +99,6 @@ class Casted(LinearOperator):
     def _matmat(self, X):
         return (self.A @ X.astype(self.A.dtype)).astype(self.dtype)
 
-
 class M_estimate(LinearOperator):
     def __init__(self, nn, params, sampler, pde_f, t, key, N, bs, is_adaptive=False, cache_v0=None,
                  chunk=False):
@@ -115,11 +114,7 @@ class M_estimate(LinearOperator):
         d = len(flat_params)
         self.shape = (d, d)
         self.params_dtype = flat_params.dtype
-        #print(f"params dtype {self.params_dtype}")
         super().__init__(self.params_dtype, self.shape)
-        import linops.jax_fns as fns
-        self.ops = fns
-        print(self.ops)
         self.evals = 0
         self.batch_size = bs
         self.is_adaptive = is_adaptive
